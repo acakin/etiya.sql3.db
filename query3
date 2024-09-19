@@ -1,0 +1,115 @@
+--1. Verilen Customers ve Orders tablolarını kullanarak, Customers tablosundaki müşterileri ve onların verdikleri siparişleri birleştirerek listeleyin. Müşteri adı, sipariş ID'si ve sipariş tarihini gösterin.
+SELECT c.CompanyName, o.OrderID, o.OrderDate from Customers as c
+JOIN Orders as o
+ON o.CustomerID = c.CustomerID
+
+--2.Verilen Suppliers ve Products tablolarını kullanarak tüm tedarikçileri ve onların sağladıkları ürünleri listeleyin. Eğer bir tedarikçinin ürünü yoksa, NULL olarak gösterilsin.
+SELECT s.CompanyName, p.ProductName FROM Suppliers as s 
+LEFT join Products as p  
+on p.SupplierID = s.SupplierID
+
+--3.Verilen Employees ve Orders tablolarını kullanarak tüm siparişleri ve bu siparişleri işleyen çalışanları listeleyin. Eğer bir sipariş bir çalışan tarafından işlenmediyse, çalışan bilgileri NULL olarak gösterilsin.
+SELECT o.OrderID, e.FirstName, e.LastName FROM Employees as e 
+RIGHT JOIN Orders as o 
+on e.EmployeeID = o.EmployeeID
+
+--4.Verilen Customers ve Orders tablolarını kullanarak tüm müşterileri ve tüm siparişleri listeleyin. Sipariş vermeyen müşteriler ve müşterisi olmayan siparişler için NULL döndürün.
+
+SELECT c.CompanyName, o.OrderID FROM Orders as o 
+full OUTER join Customers as c 
+on c.CustomerID = o.CustomerID
+
+--5.Verilen Products ve Categories tablolarını kullanarak tüm ürünler ve tüm kategoriler için olası tüm kombinasyonları listeleyin. Sonuç kümesindeki her satır bir ürün ve bir kategori kombinasyonunu göstermelidir.
+SELECT * FROM Products as p 
+cross JOIN Categories as c 
+on p.CategoryID = c.CategoryID
+
+--6.Verilen Orders, Customers, Employees tablolarını kullanarak bu tabloları birleştirin ve 1998 yılında verilen siparişleri listeleyin. Müşteri adı, sipariş ID'si, sipariş tarihi ve ilgili çalışan adı gösterilsin.
+SELECT c.CompanyName, o.OrderID, o.OrderDate, e.FirstName, e.LastName from Orders as o 
+join Customers as c 
+on o.CustomerID = c.CustomerID
+join Employees as e 
+on o.EmployeeID = e.EmployeeID
+
+--7.Verilen Orders ve Customers tablolarını kullanarak müşterileri, verdikleri sipariş sayısına göre gruplandırın. Sadece 5’ten fazla sipariş veren müşterileri listeleyin.
+SELECT c.CompanyName, od.Quantity from Orders as o 
+join Customers as c 
+on o.CustomerID = c.CustomerID
+JOIN 'Order Details' as od
+on o.OrderID = od.OrderID
+where od.Quantity > 5
+
+--8.Verilen OrderDetails ve Products tablolarını kullanarak her ürün için kaç adet satıldığını ve toplam satış miktarını listeleyin. Ürün adı, satılan toplam adet ve toplam kazancı (Quantity * UnitPrice) gösterin.
+SELECT p.ProductName, od.Quantity, od.Quantity * p.UnitPrice as 'Overall Gain' from 'Order Details' as od
+join Products as p 
+on od.ProductID = p.ProductID
+
+--9.Verilen Customers ve Orders tablolarını kullanarak, müşteri adı "B" harfiyle başlayan müşterilerin siparişlerini listeleyin.
+SELECT c.CompanyName from Customers as c 
+join Orders as o 
+on c.CustomerID = o.CustomerID
+WHERE c.CompanyName like 'B%'
+
+--10.Verilen Products ve Categories tablolarını kullanarak tüm kategorileri listeleyin ve ürünleri olmayan kategorileri bulun. Ürün adı NULL olan satırları gösterin.
+SELECT * from Products as p 
+RIGHT join Categories as c 
+on p.CategoryID = c.CategoryID
+WHERE p.ProductName is NULL
+
+--11.Verilen Employees tablosunu kullanarak her çalışanın yöneticisiyle birlikte bir liste oluşturun.
+SELECT (e1.FirstName || ' '|| e1.LastName) as 'Employees', (e2.FirstName || ' ' || e2.LastName) as VP from Employees as e1
+JOIN Employees as e2
+on e1.ReportsTo = e2.EmployeeID
+
+--12.Verilen Products tablosunu kullanarak her kategorideki en pahalı ürünleri ve bu ürünlerin farklı fiyatlara sahip olup olmadığını sorgulayın.
+SELECT c.CategoryName, MAX(p.UnitPrice) as 'MaxUnitPrice' from Products as p 
+join Categories as c 
+on c.CategoryID = p.CategoryID
+group by c.CategoryID
+
+--13.Verilen Orders ve OrderDetails tablolarını kullanarak bu tabloları birleştirin ve her siparişin detaylarını sipariş ID'sine göre artan sırada listeleyin.
+SELECT * FROM Orders as o 
+join 'Order Details' as od
+on o.OrderID = od.OrderID
+order by o.OrderID asc
+
+--14.Verilen Employees ve Orders tablolarını kullanarak her çalışanın kaç tane sipariş işlediğini listeleyin. Sipariş işlemeyen çalışanlar da gösterilsin.
+SELECT e.FirstName, e.LastName, COUNT(o.OrderID) AS 'CountOrder' from Orders as o 
+join Employees as e 
+on e.EmployeeID = o.EmployeeID
+group by o.EmployeeID
+
+--15.Verilen Products tablosunu kullanarak bir kategorideki ürünleri kendi arasında fiyatlarına göre karşılaştırın ve fiyatı düşük olan ürünleri listeleyin.
+SELECT c.CategoryName, MIN(p.UnitPrice) as 'MinUnitPrice' from Products as p 
+join Categories as c 
+on c.CategoryID = p.CategoryID
+group by c.CategoryID
+
+--16.Verilen Products ve Suppliers tablolarını kullanarak tedarikçiden alınan en pahalı ürünleri listeleyin.
+SELECT s.CompanyName, MAX(p.UnitPrice) as 'MaxUnitPrice' from Products as p 
+JOIN Suppliers as s 
+on p.SupplierID = s.SupplierID
+group by s.CompanyName
+
+--17.Verilen Employees ve Orders tablolarını kullanarak her çalışanın işlediği en son siparişi bulun.
+SELECT e.FirstName, e.LastName, MAX(o.OrderDate) as 'MaxOrderDate' from Employees e 
+join Orders o 
+on e.EmployeeID = o.EmployeeID
+GROUP by e.FirstName
+
+--18.Verilen Products tablosunu kullanarak ürünleri fiyatlarına göre gruplandırın ve fiyatı 20 birimden fazla olan ürünlerin sayısını listeleyin.
+SELECT p.ProductName, COUNT(p.ProductID) as 'Count' FROM Products p 
+WHERE p.UnitPrice > 20
+group by p.UnitPrice 
+
+--19.Verilen Orders ve Customers tablolarını kullanarak 2016 ile 2018 yılları arasında verilen siparişleri müşteri adıyla birlikte listeleyin.
+SELECT c.CompanyName from Orders o 
+join Customers c 
+on o.CustomerID = c.CustomerID
+where o.OrderDate BETWEEN strftime('%Y', o.OrderDate) = 2016 and strftime('%Y', o.OrderDate) = 2018
+
+--20.Verilen Customers ve Orders tablolarını kullanarak hiç sipariş vermeyen müşterileri listeleyin.
+SELECT c.CompanyName from Customers c 
+join Orders o 
+on c.CustomerID = o.CustomerID
+WHERE o.OrderID is NULL
